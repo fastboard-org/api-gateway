@@ -1,8 +1,10 @@
 from fastapi import FastAPI
 from settings import Settings
 import uvicorn
+import argparse
+import dotenv
+import os
 
-settings = Settings()
 app = FastAPI()
 
 
@@ -12,7 +14,13 @@ def read_root():
 
 
 if __name__ == "__main__":
-    APP_HOST = settings.host
-    APP_PORT = settings.port
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--env")
+    args = parser.parse_args()
+    if args.env and os.path.exists(args.env):
+        dotenv.load_dotenv(args.env)
     
+    APP_HOST = os.environ.get("APP_HOST")
+    APP_PORT = int(os.environ.get("APP_PORT"))
+
     uvicorn.run(app, host=APP_HOST, port=APP_PORT) 
