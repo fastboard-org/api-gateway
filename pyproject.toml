@@ -9,8 +9,23 @@ python = "^3.10"
 fastapi = "^0.111.0"
 python-dotenv = "^1.0.1"
 pydantic-settings = "^2.2.1"
+flakeheaven = "^3.3.0"
+black = "^24.4.2"
+aiohttp = "^3.9.5"
 
 [tool.poetry.dev-dependencies]
+
+[tool.black]
+line-length = 90
+
+[tool.flakeheaven]
+exclude = ["docs.py"]
+
+[tool.flakeheaven.plugins]
+# include everything but W503: line break before binary operator
+# because black does that :P
+pyflakes = ["+*"]
+pycodestyle = ["+*", "-W503"]
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

@@ -1,26 +1,11 @@
 from fastapi import FastAPI
-from settings import Settings
 import uvicorn
-import argparse
-import dotenv
-import os
+from settings import settings
+from routers.users_router import UsersRouter
 
 app = FastAPI()
-
-
-@app.get("/")
-def read_root():
-    return {"Hello": "World"}
+app.include_router(UsersRouter)
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--env")
-    args = parser.parse_args()
-    if args.env and os.path.exists(args.env):
-        dotenv.load_dotenv(args.env)
-    
-    APP_HOST = os.environ.get("APP_HOST")
-    APP_PORT = int(os.environ.get("APP_PORT"))
-
-    uvicorn.run(app, host=APP_HOST, port=APP_PORT) 
+    uvicorn.run(app, host=settings.app_host, port=settings.app_port)
