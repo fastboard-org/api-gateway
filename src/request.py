@@ -6,8 +6,13 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 
 
-async def make_request(url, headers, method, body):
+async def make_request(url, headers, method, body={}, params={}):
     json_compatible_body = jsonable_encoder(body)
+    url = (
+        url + "?" + "&".join([f"{k}={v}" for k, v in params.items()])
+        if len(params) > 0
+        else url
+    )
     async with aiohttp.ClientSession() as session:
         try:
             async with session.request(
