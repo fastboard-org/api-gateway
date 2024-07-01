@@ -18,3 +18,8 @@ class GetDashboards(BaseModel):
     user_id: Optional[str] = None
     folder_id: Optional[str] = None
     name: Optional[str] = None
+
+
+class GetUserDashboards(BaseModel):
+    folder_id: Optional[str] = None
+    name: Optional[str] = None

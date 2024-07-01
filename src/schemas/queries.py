@@ -17,3 +17,8 @@ class GetQueries(BaseModel):
     user_id: Optional[str] = None
     connection_id: Optional[str] = None
     name: Optional[str] = None
+
+
+class GetUserQueries(BaseModel):
+    connection_id: Optional[str] = None
+    name: Optional[str] = None
