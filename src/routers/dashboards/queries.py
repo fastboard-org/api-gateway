@@ -3,7 +3,7 @@ from configs.settings import settings
 from request import make_request
 from auth.firebase import get_firebase_user
 from fastapi import Depends, Request
-from schemas.queries import CreateQuery, UpdateQuery, GetQueries
+from schemas.queries import CreateQuery, UpdateQuery, GetQueries, GetUserQueries
 
 QueriesRouter = APIRouter(tags=["queries"])
 
@@ -26,6 +26,25 @@ async def create_query(
         dict(request.headers),
         request.method,
         body=body,
+    )
+
+
+@QueriesRouter.get("/{version}/queries/me")
+async def get_my_queries(
+    request: Request,
+    version: str,
+    request_query_params: GetUserQueries = Depends(),
+    user=Depends(get_firebase_user),
+):
+    url = URL + f"/{version}/queries"
+    uid = user["uid"]
+    query_params = request_query_params.model_dump(exclude_none=True)
+    query_params["user_id"] = uid
+    return await make_request(
+        url,
+        dict(request.headers),
+        request.method,
+        params=query_params,
     )
 
 
