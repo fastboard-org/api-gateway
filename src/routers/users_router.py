@@ -1,6 +1,6 @@
 from fastapi import APIRouter
-from settings import settings
-from requests import make_request
+from configs.settings import settings
+from request import make_request
 
 UsersRouter = APIRouter(prefix="/v1/users", tags=["users"])
 
