@@ -3,7 +3,12 @@ from configs.settings import settings
 from request import make_request
 from auth.firebase import get_firebase_user
 from fastapi import Depends
-from schemas.dashboards import CreateDashboard, UpdateDashboard, GetDashboards
+from schemas.dashboards import (
+    CreateDashboard,
+    UpdateDashboard,
+    GetDashboards,
+    GetUserDashboards,
+)
 from fastapi import Request
 
 DashboardsRouter = APIRouter(tags=["dashboards"])
@@ -27,6 +32,25 @@ async def create_dashboard(
         dict(request.headers),
         request.method,
         body=body,
+    )
+
+
+@DashboardsRouter.get("/{version}/dashboards/me")
+async def get_my_dashboards(
+    request: Request,
+    version: str,
+    request_query_params: GetUserDashboards = Depends(),
+    user=Depends(get_firebase_user),
+):
+    url = SERVICE_URL + f"/{version}/dashboards"
+    uid = user["uid"]
+    query_params = request_query_params.model_dump(exclude_none=True)
+    query_params["user_id"] = uid
+    return await make_request(
+        url,
+        dict(request.headers),
+        request.method,
+        params=query_params,
     )
 
 

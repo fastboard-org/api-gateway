@@ -3,7 +3,12 @@ from configs.settings import settings
 from request import make_request
 from auth.firebase import get_firebase_user
 from fastapi import Depends, Request
-from schemas.connections import CreateConnection, UpdateConnection, GetConnections
+from schemas.connections import (
+    CreateConnection,
+    UpdateConnection,
+    GetConnections,
+    GetUserConnections,
+)
 
 ConnectionsRouter = APIRouter(tags=["connections"])
 
@@ -26,6 +31,25 @@ async def create_connection(
         dict(request.headers),
         request.method,
         body=body,
+    )
+
+
+@ConnectionsRouter.get("/{version}/connections/me")
+async def get_my_connections(
+    request: Request,
+    version: str,
+    request_query_params: GetUserConnections = Depends(),
+    user=Depends(get_firebase_user),
+):
+    url = URL + f"/{version}/connections"
+    uid = user["uid"]
+    query_params = request_query_params.model_dump(exclude_none=True)
+    query_params["user_id"] = uid
+    return await make_request(
+        url,
+        dict(request.headers),
+        request.method,
+        params=query_params,
     )
 
 

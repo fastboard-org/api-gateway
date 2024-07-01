@@ -3,7 +3,7 @@ from configs.settings import settings
 from request import make_request
 from auth.firebase import get_firebase_user
 from fastapi import Depends, Request
-from schemas.folders import CreateFolder, UpdateFolder, GetFolders
+from schemas.folders import CreateFolder, UpdateFolder, GetFolders, GetUserFolders
 
 
 FoldersRouter = APIRouter(tags=["folders"])
@@ -28,6 +28,25 @@ async def create_folder(
         dict(request.headers),
         request.method,
         body=body,
+    )
+
+
+@FoldersRouter.get("/{version}/folders/me")
+async def get_my_folders(
+    request: Request,
+    version: str,
+    request_query_params: GetUserFolders = Depends(),
+    user=Depends(get_firebase_user),
+):
+    url = SERVICE_URL + f"/{version}/folders"
+    uid = user["uid"]
+    query_params = request_query_params.model_dump(exclude_none=True)
+    query_params["user_id"] = uid
+    return await make_request(
+        url,
+        dict(request.headers),
+        request.method,
+        params=query_params,
     )
 
 
