@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - uses: digitalocean/app_action@v1.1.6
+    - uses: digitalocean/app_action@v1.1.5
       with:
         app_name: fastboard-api-gateway
         token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
