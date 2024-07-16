@@ -23,7 +23,7 @@ async def create_dashboard(
     version: str,
     user=Depends(get_firebase_user),
 ):
-    url = SERVICE_URL + f"/{version}/dashboards"
+    url = SERVICE_URL + f"/{version}/dashboards/"
     uid = user["uid"]
     body = request_body.model_dump(exclude_unset=True)
     body["user_id"] = uid

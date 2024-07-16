@@ -17,7 +17,7 @@ async def create_query(
     version: str,
     user=Depends(get_firebase_user),
 ):
-    url = URL + f"/{version}/queries"
+    url = URL + f"/{version}/queries/"
     uid = user["uid"]
     body = request_body.model_dump(exclude_unset=True)
     body["user_id"] = uid
