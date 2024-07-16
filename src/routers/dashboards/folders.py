@@ -19,7 +19,7 @@ async def create_folder(
     version: str,
     user=Depends(get_firebase_user),
 ):
-    url = SERVICE_URL + f"/{version}/folders"
+    url = SERVICE_URL + f"/{version}/folders/"
     uid = user["uid"]
     body = request_body.model_dump(exclude_unset=True)
     body["user_id"] = uid

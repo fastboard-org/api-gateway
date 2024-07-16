@@ -22,7 +22,7 @@ async def create_connection(
     version: str,
     user=Depends(get_firebase_user),
 ):
-    url = URL + f"/{version}/connections"
+    url = URL + f"/{version}/connections/"
     uid = user["uid"]
     body = request_body.model_dump(exclude_unset=True)
     body["user_id"] = uid
