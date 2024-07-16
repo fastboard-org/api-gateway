@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     users_service_url: str
     dashboards_service_url: str
     firebase_api_key: str
+    allowed_origin: str
 
     class Config:
         env_file = ".env"
