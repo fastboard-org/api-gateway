@@ -6,6 +6,7 @@ from routers.dashboards.dashboards import DashboardsRouter
 from routers.dashboards.folders import FoldersRouter
 from routers.dashboards.connections import ConnectionsRouter
 from routers.dashboards.queries import QueriesRouter
+from routers.adapter.adapter import AdapterRouter
 from auth.firebase import initialize_firebase
 from contextlib import asynccontextmanager
 from errors import handle_custom_exception
@@ -29,6 +30,7 @@ app.include_router(DashboardsRouter)
 app.include_router(FoldersRouter)
 app.include_router(ConnectionsRouter)
 app.include_router(QueriesRouter)
+app.include_router(AdapterRouter)
 app.add_exception_handler(RequestValidationError, handle_validation_error)
 app.add_exception_handler(CustomException, handle_custom_exception)
 

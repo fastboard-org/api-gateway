@@ -6,6 +6,7 @@ class Settings(BaseSettings):
     app_port: int
     users_service_url: str
     dashboards_service_url: str
+    adapter_service_url: str
     firebase_api_key: str
     allowed_origin: str
 
