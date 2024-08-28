@@ -17,9 +17,10 @@ async def execute_query(
     version: str,
     connection_id: str,
     query_id: str,
-    _=Depends(get_firebase_user),
+    user=Depends(get_firebase_user),
 ):
-    url = URL + f"/{version}/adapter/{connection_id}/execute/{query_id}"
+    uid = user["uid"]
+    url = URL + f"/{version}/adapter/{connection_id}/execute/{query_id}?user_id={uid}"
     body = request_body.model_dump()
     return await make_request(
         url,
@@ -35,9 +36,10 @@ async def preview_query(
     request_body: PreviewQuery,
     version: str,
     connection_id: str,
-    _=Depends(get_firebase_user),
+    user=Depends(get_firebase_user),
 ):
-    url = URL + f"/{version}/adapter/{connection_id}/preview"
+    uid = user["uid"]
+    url = URL + f"/{version}/adapter/{connection_id}/preview?user_id={uid}"
     body = request_body.model_dump()
     return await make_request(
         url,
