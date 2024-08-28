@@ -55,7 +55,6 @@ async def get_published_dashboard(
     request: Request,
     dashboard_id: str,
     version: str,
-    _=Depends(get_firebase_user),
 ):
     url = SERVICE_URL + f"/{version}/dashboards/{dashboard_id}/published"
     return await make_request(
