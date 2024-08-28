@@ -16,11 +16,5 @@ class UpdateConnection(BaseModel):
 
 
 class GetConnections(BaseModel):
-    user_id: Optional[str] = None
-    name: Optional[str] = None
-    type: Optional[str] = None
-
-
-class GetUserConnections(BaseModel):
     name: Optional[str] = None
     type: Optional[str] = None
