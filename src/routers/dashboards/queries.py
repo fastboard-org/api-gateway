@@ -3,7 +3,7 @@ from configs.settings import settings
 from request import make_request
 from auth.firebase import get_firebase_user
 from fastapi import Depends, Request
-from schemas.queries import CreateQuery, UpdateQuery, GetQueries, GetUserQueries
+from schemas.queries import CreateQuery, UpdateQuery, GetQueries
 
 QueriesRouter = APIRouter(tags=["queries"])
 
@@ -29,11 +29,27 @@ async def create_query(
     )
 
 
-@QueriesRouter.get("/{version}/queries/me")
+@QueriesRouter.get("/{version}/queries/{query_id}")
+async def get_query(
+    request: Request,
+    query_id: str,
+    version: str,
+    user=Depends(get_firebase_user),
+):
+    uid = user["uid"]
+    url = URL + f"/{version}/queries/{query_id}?user_id={uid}"
+    return await make_request(
+        url,
+        dict(request.headers),
+        request.method,
+    )
+
+
+@QueriesRouter.get("/{version}/queries")
 async def get_my_queries(
     request: Request,
     version: str,
-    request_query_params: GetUserQueries = Depends(),
+    request_query_params: GetQueries = Depends(),
     user=Depends(get_firebase_user),
 ):
     url = URL + f"/{version}/queries"
@@ -48,47 +64,18 @@ async def get_my_queries(
     )
 
 
-@QueriesRouter.get("/{version}/queries/{query_id}")
-async def get_query(
-    request: Request,
-    query_id: str,
-    version: str,
-    _=Depends(get_firebase_user),
-):
-    url = URL + f"/{version}/queries/{query_id}"
-    return await make_request(
-        url,
-        dict(request.headers),
-        request.method,
-    )
-
-
-@QueriesRouter.get("/{version}/queries")
-async def get_queries(
-    request: Request,
-    version: str,
-    request_query_params: GetQueries = Depends(),
-    _=Depends(get_firebase_user),
-):
-    url = URL + f"/{version}/queries"
-    return await make_request(
-        url,
-        dict(request.headers),
-        request.method,
-        params=request_query_params.model_dump(exclude_none=True),
-    )
-
-
 @QueriesRouter.patch("/{version}/queries/{query_id}")
 async def update_query(
     request: Request,
     query_id: str,
     request_body: UpdateQuery,
     version: str,
-    _=Depends(get_firebase_user),
+    user=Depends(get_firebase_user),
 ):
     url = URL + f"/{version}/queries/{query_id}"
+    uid = user["uid"]
     body = request_body.model_dump(exclude_unset=True)
+    body["user_id"] = uid
     return await make_request(
         url,
         dict(request.headers),
@@ -102,9 +89,10 @@ async def delete_query(
     request: Request,
     query_id: str,
     version: str,
-    _=Depends(get_firebase_user),
+    user=Depends(get_firebase_user),
 ):
-    url = URL + f"/{version}/queries/{query_id}"
+    uid = user["uid"]
+    url = URL + f"/{version}/queries/{query_id}?user_id={uid}"
     return await make_request(
         url,
         dict(request.headers),

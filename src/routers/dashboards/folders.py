@@ -3,7 +3,7 @@ from configs.settings import settings
 from request import make_request
 from auth.firebase import get_firebase_user
 from fastapi import Depends, Request
-from schemas.folders import CreateFolder, UpdateFolder, GetFolders, GetUserFolders
+from schemas.folders import CreateFolder, UpdateFolder, GetFolders
 
 
 FoldersRouter = APIRouter(tags=["folders"])
@@ -31,11 +31,27 @@ async def create_folder(
     )
 
 
-@FoldersRouter.get("/{version}/folders/me")
+@FoldersRouter.get("/{version}/folders/{folder_id}")
+async def get_folder(
+    request: Request,
+    folder_id: str,
+    version: str,
+    user=Depends(get_firebase_user),
+):
+    uid = user["uid"]
+    url = SERVICE_URL + f"/{version}/folders/{folder_id}?user_id={uid}"
+    return await make_request(
+        url,
+        dict(request.headers),
+        request.method,
+    )
+
+
+@FoldersRouter.get("/{version}/folders")
 async def get_my_folders(
     request: Request,
     version: str,
-    request_query_params: GetUserFolders = Depends(),
+    request_query_params: GetFolders = Depends(),
     user=Depends(get_firebase_user),
 ):
     url = SERVICE_URL + f"/{version}/folders"
@@ -50,47 +66,18 @@ async def get_my_folders(
     )
 
 
-@FoldersRouter.get("/{version}/folders/{folder_id}")
-async def get_folder(
-    request: Request,
-    folder_id: str,
-    version: str,
-    _=Depends(get_firebase_user),
-):
-    url = SERVICE_URL + f"/{version}/folders/{folder_id}"
-    return await make_request(
-        url,
-        dict(request.headers),
-        request.method,
-    )
-
-
-@FoldersRouter.get("/{version}/folders")
-async def get_folders(
-    request: Request,
-    version: str,
-    request_query_params: GetFolders = Depends(),
-    _=Depends(get_firebase_user),
-):
-    url = SERVICE_URL + f"/{version}/folders"
-    return await make_request(
-        url,
-        dict(request.headers),
-        request.method,
-        params=request_query_params.model_dump(exclude_none=True),
-    )
-
-
 @FoldersRouter.patch("/{version}/folders/{folder_id}")
 async def update_folder(
     request: Request,
     folder_id: str,
     request_body: UpdateFolder,
     version: str,
-    _=Depends(get_firebase_user),
+    user=Depends(get_firebase_user),
 ):
     url = SERVICE_URL + f"/{version}/folders/{folder_id}"
+    uid = user["uid"]
     body = request_body.model_dump(exclude_unset=True)
+    body["user_id"] = uid
     return await make_request(
         url,
         dict(request.headers),
@@ -104,9 +91,10 @@ async def delete_folder(
     request: Request,
     folder_id: str,
     version: str,
-    _=Depends(get_firebase_user),
+    user=Depends(get_firebase_user),
 ):
-    url = SERVICE_URL + f"/{version}/folders/{folder_id}"
+    uid = user["uid"]
+    url = SERVICE_URL + f"/{version}/folders/{folder_id}?user_id={uid}"
     return await make_request(
         url,
         dict(request.headers),

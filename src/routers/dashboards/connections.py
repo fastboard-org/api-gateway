@@ -7,7 +7,6 @@ from schemas.connections import (
     CreateConnection,
     UpdateConnection,
     GetConnections,
-    GetUserConnections,
 )
 
 ConnectionsRouter = APIRouter(tags=["connections"])
@@ -34,11 +33,27 @@ async def create_connection(
     )
 
 
-@ConnectionsRouter.get("/{version}/connections/me")
+@ConnectionsRouter.get("/{version}/connections/{connection_id}")
+async def get_connection(
+    request: Request,
+    connection_id: str,
+    version: str,
+    user=Depends(get_firebase_user),
+):
+    uid = user["uid"]
+    url = URL + f"/{version}/connections/{connection_id}?user_id={uid}"
+    return await make_request(
+        url,
+        dict(request.headers),
+        request.method,
+    )
+
+
+@ConnectionsRouter.get("/{version}/connections")
 async def get_my_connections(
     request: Request,
     version: str,
-    request_query_params: GetUserConnections = Depends(),
+    request_query_params: GetConnections = Depends(),
     user=Depends(get_firebase_user),
 ):
     url = URL + f"/{version}/connections"
@@ -53,47 +68,18 @@ async def get_my_connections(
     )
 
 
-@ConnectionsRouter.get("/{version}/connections/{connection_id}")
-async def get_connection(
-    request: Request,
-    connection_id: str,
-    version: str,
-    _=Depends(get_firebase_user),
-):
-    url = URL + f"/{version}/connections/{connection_id}"
-    return await make_request(
-        url,
-        dict(request.headers),
-        request.method,
-    )
-
-
-@ConnectionsRouter.get("/{version}/connections")
-async def get_connections(
-    request: Request,
-    version: str,
-    request_query_params: GetConnections = Depends(),
-    _=Depends(get_firebase_user),
-):
-    url = URL + f"/{version}/connections"
-    return await make_request(
-        url,
-        dict(request.headers),
-        request.method,
-        params=request_query_params.model_dump(exclude_none=True),
-    )
-
-
 @ConnectionsRouter.patch("/{version}/connections/{connection_id}")
 async def update_connection(
     request: Request,
     connection_id: str,
     request_body: UpdateConnection,
     version: str,
-    _=Depends(get_firebase_user),
+    user=Depends(get_firebase_user),
 ):
     url = URL + f"/{version}/connections/{connection_id}"
+    uid = user["uid"]
     body = request_body.model_dump(exclude_unset=True)
+    body["user_id"] = uid
     return await make_request(
         url,
         dict(request.headers),
@@ -107,9 +93,10 @@ async def delete_connection(
     request: Request,
     connection_id: str,
     version: str,
-    _=Depends(get_firebase_user),
+    user=Depends(get_firebase_user),
 ):
-    url = URL + f"/{version}/connections/{connection_id}"
+    uid = user["uid"]
+    url = URL + f"/{version}/connections/{connection_id}?user_id={uid}"
     return await make_request(
         url,
         dict(request.headers),
