@@ -9,15 +9,14 @@ AdapterRouter = APIRouter(tags=["adapter"])
 URL = settings.adapter_service_url
 
 
-@AdapterRouter.post("/{version}/adapter/{connection_id}/execute/{query_id}")
+@AdapterRouter.post("/{version}/adapter/execute/{query_id}")
 async def execute_query(
     request: Request,
     request_body: ExecuteQuery,
     version: str,
-    connection_id: str,
     query_id: str,
 ):
-    url = URL + f"/{version}/adapter/{connection_id}/execute/{query_id}"
+    url = URL + f"/{version}/adapter/execute/{query_id}"
     body = request_body.model_dump()
     return await make_request(
         url,
