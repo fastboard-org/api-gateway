@@ -9,6 +9,14 @@ AdapterRouter = APIRouter(tags=["adapter"])
 URL = settings.adapter_service_url
 
 
+@AdapterRouter.post("/{version}/embeddings/{query_id}")
+async def create_embeddings(
+    request: Request, version: str, query_id: str, index_field: str
+):
+    url = URL + f"/{version}/adapter/embeddings/{query_id}?index_field={index_field}"
+    return await make_request(url, dict(request.headers), request.method)
+
+
 @AdapterRouter.post("/{version}/adapter/execute/{query_id}")
 async def execute_query(
     request: Request,
